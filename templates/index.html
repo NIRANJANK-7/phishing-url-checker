@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1424">
+    <title>PhishGuard | URL Security Checker</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+<header class="navbar">
+    <a class="brand" href="/">
+        <span class="brand-icon">🛡️</span>
+        <span>
+            <strong>Phish<span>Guard</span></strong>
+            <small>URL SECURITY CHECKER</small>
+        </span>
+    </a>
+
+    <div class="status">
+        <span class="status-dot"></span>
+        Local Analysis
+    </div>
+</header>
+
+<main class="container">
+
+    <section class="hero">
+        <div class="eyebrow">CYBERSECURITY TOOLKIT</div>
+        <h1>Think before<br>you <span>click.</span></h1>
+        <p>
+            Check a URL for common phishing warning signs.
+            Simple analysis, clear explanations.
+        </p>
+    </section>
+
+    <section class="search-card">
+        <label for="url">Enter a website URL</label>
+
+        <form method="POST" action="/">
+            <div class="input-row">
+                <span class="link-icon">↗</span>
+                <input
+                    type="text"
+                    id="url"
+                    name="url"
+                    placeholder="https://example.com"
+                    value="{{ entered_url }}"
+                    maxlength="2048"
+                    autocomplete="url"
+                    required>
+                <button type="submit">Check URL <span>→</span></button>
+            </div>
+        </form>
+
+        <p class="privacy-note">
+            🔒 Analysis runs locally on your computer.
+            The submitted URL is not visited.
+        </p>
+    </section>
+
+    {% if error %}
+    <section class="result-card danger">
+        <div class="result-heading">
+            <span class="result-symbol">!</span>
+            <div>
+                <h2>Unable to analyze URL</h2>
+                <p>{{ error }}</p>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {% if result %}
+    <section class="result-card
+        {% if result.warnings %}danger{% else %}caution{% endif %}">
+
+        <div class="result-heading">
+            <span class="result-symbol">
+                {% if result.warnings %}⚠{% else %}✓{% endif %}
+            </span>
+
+            <div>
+                {% if result.warnings %}
+                    <h2>Suspicious patterns detected</h2>
+                    <p>
+                        Found {{ result.warnings|length }}
+                        warning sign(s). Review the details below.
+                    </p>
+                {% else %}
+                    <h2>No obvious warning signs found</h2>
+                    <p>
+                        This does not prove the website is safe.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="details">
+            <div>
+                <span>ANALYZED URL</span>
+                <strong class="url-value">{{ result.url }}</strong>
+            </div>
+
+            <div>
+                <span>HOSTNAME</span>
+                <strong>{{ result.domain }}</strong>
+            </div>
+
+            <div>
+                <span>PROTOCOL</span>
+                <strong>{{ result.scheme|upper }}</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-heading">
+            <div>
+                <h2>Security analysis</h2>
+                <p>Review each detected pattern.</p>
+            </div>
+            <span class="count">{{ result.checks|length }} CHECKS</span>
+        </div>
+
+        {% for name, found in result.checks %}
+        <div class="check-row">
+            <div class="check-info">
+                <span class="check-icon
+                    {% if found %}check-bad{% else %}check-good{% endif %}">
+                    {% if found %}⚠{% else %}✓{% endif %}
+                </span>
+                <span>{{ name }}</span>
+            </div>
+
+            <span class="check-status
+                {% if found %}bad{% else %}good{% endif %}">
+                {% if found %}Detected{% else %}Not detected{% endif %}
+            </span>
+        </div>
+        {% endfor %}
+
+        <div class="disclaimer">
+            <strong>Important:</strong>
+            These are basic heuristic checks. They may produce
+            false positives or miss real phishing URLs.
+            No result guarantees safety.
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="panel red-flags">
+        <div class="panel-heading">
+            <div>
+                <h2>Common red flags</h2>
+                <p>Patterns this tool looks for.</p>
+            </div>
+        </div>
+
+        <div class="tags">
+            <span>IP addresses</span>
+            <span>@ symbols</span>
+            <span>Long URLs</span>
+            <span>Sensitive keywords</span>
+            <span>HTTP protocol</span>
+            <span>Many subdomains</span>
+            <span>Hyphens</span>
+        </div>
+    </section>
+
+    <footer>
+        <p>PhishGuard · Educational cybersecurity project</p>
+        <p>Always verify suspicious links through a trusted source.</p>
+    </footer>
+
+</main>
+</body>
+</html>
